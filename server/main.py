@@ -34,10 +34,13 @@ def serialize_unit(unit: Any) -> dict[str, Any]:
     return asdict(unit)
 
 
-@app.get("/units")
+@app.get("/units/data")
 def get_units() -> list[dict[str, Any]]:
     return [serialize_unit(unit) for unit in editor.load_units(UNITS_DBF)]
 
+@app.get("/units")
+def get_units_list() -> list[dict[str, Any]]:
+    return editor.get_units_search_list(UNITS_DBF)
 
 @app.get("/units/{unit_id}")
 def get_unit(unit_id: str) -> dict[str, Any]:

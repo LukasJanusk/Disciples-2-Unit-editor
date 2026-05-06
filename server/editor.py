@@ -8,6 +8,7 @@ from server.unit import Unit
 
 DEFAULT_CODEPAGE = "utf8"
 DEFAULT_UNITS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Gunits.dbf"
+DEFAULT_GLOBALS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Tglobal.dbf"
 
 
 @contextmanager
@@ -28,6 +29,10 @@ def open_dbf_table(
 
 def _row_from_record(record: Any, field_names: tuple[str, ...]) -> dict[str, Any]:
     return {field_name: record[field_name] for field_name in field_names}
+
+
+def _strip_dbf_string(value: Any) -> str:
+    return str(value).strip() if value is not None else ""
 
 
 def _resolve_dbf_field_name(field_name: str, field_names: tuple[str, ...]) -> str | None:
@@ -54,6 +59,16 @@ def _resolve_dbf_field_name(field_name: str, field_names: tuple[str, ...]) -> st
 
     return None
 
+def get_globals(
+    dbf_filename: str | Path = DEFAULT_GLOBALS_DBF,
+    *,
+    codepage: str = DEFAULT_CODEPAGE,
+) -> dict[str, str]:
+    with open_dbf_table(dbf_filename, codepage=codepage) as table:
+        globals_dict: dict[str, str] = {}
+        for record in table:
+            globals_dict[_strip_dbf_string(record["TXT_ID"])] = _strip_dbf_string(record["TEXT"])
+        return globals_dict
 
 def load_units(
     dbf_filename: str | Path = DEFAULT_UNITS_DBF,
@@ -68,6 +83,24 @@ def load_units(
             units.append(Unit.from_row(row))
         return units
 
+def get_units_search_list(
+    dbf_filename: str | Path = DEFAULT_UNITS_DBF,
+    *,
+    codepage: str = DEFAULT_CODEPAGE,
+) -> list[dict[str, str]]:
+    with open_dbf_table(dbf_filename, codepage=codepage) as table:
+        globals_dict = get_globals(DEFAULT_GLOBALS_DBF, codepage=codepage)
+        return [
+            {
+                "unit_id": _strip_dbf_string(record["UNIT_ID"]),
+                "name": globals_dict.get(
+                    _strip_dbf_string(record["NAME_TXT"]),
+                    _strip_dbf_string(record["NAME_TXT"]),
+                ),
+                "race_id": _strip_dbf_string(record["RACE_ID"]),
+            }
+            for record in table
+        ]
 
 def get_unit(
     unit_id: str,
