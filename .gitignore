@@ -216,3 +216,16 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# OS
+.DS_Store
+
+# Frontend
+client/node_modules/
+client/dist/
+client/coverage/
+
+# Agents
+.github/instructions
+
+defaults

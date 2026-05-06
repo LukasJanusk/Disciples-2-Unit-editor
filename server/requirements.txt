@@ -1,0 +1,4 @@
+aenum==3.1.17
+dbf==0.99.11
+fastapi==0.116.1
+uvicorn==0.35.0
