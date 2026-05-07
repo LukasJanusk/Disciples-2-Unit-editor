@@ -1,21 +1,21 @@
 import { getUnitsSearchList } from "@/api/https";
 import Content from "@/components/layout/Content";
-import UnitList from "@/components/unitList";
+import UnitList from "@/components/units/unitList";
 import { AppRouteSearchParam } from "@/routes";
-import type { Unit } from "@/types";
+import type { UnitSearchListItem } from "@/schema/unitSchema";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function UnitsListPage() {
   const [searchParams] = useSearchParams();
-  const [units, setUnits] = useState<Partial<Unit>[]>([]);
+  const [units, setUnits] = useState<UnitSearchListItem[]>([]);
 
   const query = searchParams.get(AppRouteSearchParam.Query)?.trim().toLowerCase() ?? "";
 
   useEffect(() => {
     const getUnits = async () => {
       const loadedUnits = await getUnitsSearchList();
-      setUnits(loadedUnits as Partial<Unit>[]);
+      setUnits(loadedUnits);
     };
 
     void getUnits();

@@ -1,17 +1,11 @@
 {
   "name": "disciples-2-unit-editor",
   "private": true,
-  "workspaces": [
-    "client"
-  ],
   "scripts": {
     "client:dev": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build",
     "client:test": "npm --prefix client run test",
     "client:lint": "npm --prefix client run lint",
     "server:dev": ".venv/bin/python -m server.main"
-  },
-  "dependencies": {
-    "react-router": "^7.15.0"
   }
 }

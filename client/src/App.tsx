@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUnitsSearchList } from "@/api/https";
-import { type Unit } from "@/types";
+import { type UnitSearchListItem } from "@/schema/unitSchema";
 import Search from "@/components/search/Search";
 import Header from "@/components/layout/Header";
 import { Route, Routes } from "react-router-dom";
@@ -13,7 +13,7 @@ import Title from "@/components/ui/Title";
 import UnitInfoPage from "./pages/UnitInfo";
 
 function App() {
-  const [allSearchList, setAllSearchList] = useState<Partial<Unit>[]>([]);
+  const [allSearchList, setAllSearchList] = useState<UnitSearchListItem[]>([]);
 
   useEffect(() => {
     const getUnitSearchList = async () => {

@@ -9,7 +9,8 @@ from server.unit import Unit
 DEFAULT_CODEPAGE = "utf8"
 DEFAULT_UNITS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Gunits.dbf"
 DEFAULT_GLOBALS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Tglobal.dbf"
-
+DEFAULT_ATTACKS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Gattacks.dbf"
+DEFAULT_ATTACK_ID = 'g000000000'
 
 @contextmanager
 def open_dbf_table(
@@ -48,15 +49,6 @@ def _resolve_dbf_field_name(field_name: str, field_names: tuple[str, ...]) -> st
     if direct_match is not None:
         return direct_match
 
-    aliases = Unit.FIELD_ALIASES.get(field_name)
-    if aliases is not None:
-        for alias in aliases:
-            if alias in field_names:
-                return alias
-            normalized_alias_match = normalized_fields.get(alias.replace(" ", "_").upper())
-            if normalized_alias_match is not None:
-                return normalized_alias_match
-
     return None
 
 def get_globals(
@@ -69,6 +61,13 @@ def get_globals(
         for record in table:
             globals_dict[_strip_dbf_string(record["TXT_ID"])] = _strip_dbf_string(record["TEXT"])
         return globals_dict
+
+def get_global(global_id: str) -> str | None:
+    with open_dbf_table(DEFAULT_GLOBALS_DBF, codepage=DEFAULT_CODEPAGE) as table:
+        for record in table:
+            if _strip_dbf_string(record["TXT_ID"]) == global_id:
+                return _strip_dbf_string(record["TEXT"])
+    return None
 
 def load_units(
     dbf_filename: str | Path = DEFAULT_UNITS_DBF,
@@ -115,6 +114,22 @@ def get_unit(
                 return Unit.from_row(_row_from_record(record, field_names))
     return None
 
+def get_attack(
+        attack_id: str,
+        dbf_filename: str | Path = DEFAULT_ATTACKS_DBF,
+        *,
+        codepage: str = DEFAULT_CODEPAGE,
+) -> dict[str, Any] | None:
+    with open_dbf_table(dbf_filename, codepage=codepage) as table:
+        for record in table:
+            if str(record["ATT_ID"]).strip() == attack_id:
+                field_names = tuple(table.field_names)
+                return _row_from_record(record, field_names)
+    return None
+
+
+def is_default_attack_id(attack_id: str) -> bool:
+    return attack_id == DEFAULT_ATTACK_ID
 
 def update_unit(
     unit_id: str,

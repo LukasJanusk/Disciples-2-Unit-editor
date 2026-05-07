@@ -17,6 +17,11 @@ class UnitEditRequest(BaseModel):
     changes: dict[str, Any]
 
 
+class AttackResponse(BaseModel):
+    is_default: bool
+    attack: dict[str, Any] | None = None
+
+
 app = FastAPI(title="Disciples 2 Unit Editor API")
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +36,8 @@ app.add_middleware(
 
 
 def serialize_unit(unit: Any) -> dict[str, Any]:
+    if isinstance(unit, dict):
+        return dict(unit)
     return asdict(unit)
 
 
@@ -61,6 +68,23 @@ def edit_unit(unit_id: str, request: UnitEditRequest) -> dict[str, Any]:
 
     return serialize_unit(updated_unit)
 
+@app.get('/attacks/{attack_id}', response_model=AttackResponse)
+def get_attack(attack_id: str) -> AttackResponse:
+    if editor.is_default_attack_id(attack_id):
+        return AttackResponse(is_default=True)
+
+    attack = editor.get_attack(attack_id)
+    if attack is None:
+        raise HTTPException(status_code=404, detail="Attack not found")
+
+    return AttackResponse(is_default=False, attack=attack)
+
+@app.get("/globals/{global_id}", response_model=str)
+def get_global(global_id: str) -> str:
+    global_value = editor.get_global(global_id)
+    if global_value is None:
+        raise HTTPException(status_code=404, detail="Global not found")
+    return global_value
 
 def main():
     uvicorn.run(app, host="127.0.0.1", port=8000)
