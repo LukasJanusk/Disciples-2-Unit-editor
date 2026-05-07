@@ -1,13 +1,17 @@
-import { useEffect, useEffectEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { AppRoute, AppRouteSearchParam } from "@/routes";
+import SearchIcon from "./SearchIcon";
 
 type Props = {
   onChange?: (query: string, matches: string[]) => void;
+  onSearch?: (query: string, matches: string[]) => void;
   values: string[];
-  debounceMs?: number;
   placeholder?: string;
+  className?: string;
 };
 
-const MAX_SUGGESTIONS = 5;
+const MAX_SUGGESTIONS = 10;
 
 function getMatchScore(value: string, normalizedQuery: string): number {
   const normalizedValue = value.toLowerCase();
@@ -33,10 +37,13 @@ function getMatchScore(value: string, normalizedQuery: string): number {
   return Number.POSITIVE_INFINITY;
 }
 
-export default function Search({ onChange, values, debounceMs = 200, placeholder = "Search" }: Props) {
-  const [query, setQuery] = useState("");
+export default function Search({ onChange, onSearch, values, placeholder = "Search", className }: Props) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const initialRouteQuery = searchParams.get(AppRouteSearchParam.Query) ?? "";
+  const [query, setQuery] = useState(initialRouteQuery);
   const [isFocused, setIsFocused] = useState(false);
-  const [debouncedQuery, setDebouncedQuery] = useState("");
 
   const uniqueValues = useMemo(() => {
     const seen = new Set<string>();
@@ -77,58 +84,72 @@ export default function Search({ onChange, values, debounceMs = 200, placeholder
       .map((entry) => entry.value);
   }, [query, uniqueValues]);
 
-  const debouncedMatches = useMemo(() => {
-    const normalizedQuery = debouncedQuery.trim().toLowerCase();
+  const getMatches = (nextQuery: string) => {
+    const normalizedQuery = nextQuery.trim().toLowerCase();
 
     if (!normalizedQuery) {
       return uniqueValues;
     }
 
     return uniqueValues.filter((value) => value.toLowerCase().includes(normalizedQuery));
-  }, [debouncedQuery, uniqueValues]);
+  };
 
-  const debouncedMatchesKey = useMemo(() => {
-    return debouncedMatches.join("\0");
-  }, [debouncedMatches]);
+  const handleSearch = (nextQuery: string) => {
+    const trimmedQuery = nextQuery.trim();
+    const matches = getMatches(nextQuery);
+    const nextSearch = trimmedQuery ? `?${new URLSearchParams({ [AppRouteSearchParam.Query]: trimmedQuery }).toString()}` : "";
 
-  const emitChange = useEffectEvent(() => {
-    onChange?.(debouncedQuery.trim(), debouncedMatches);
-  });
+    if (location.pathname !== AppRoute.Units || location.search !== nextSearch) {
+      void navigate({ pathname: AppRoute.Units, search: nextSearch });
+    }
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedQuery(query);
-    }, debounceMs);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [debounceMs, query]);
-
-  useEffect(() => {
-    emitChange();
-  }, [debouncedMatchesKey, debouncedQuery]);
+    onSearch?.(trimmedQuery, matches);
+    setIsFocused(false);
+  };
 
   const showSuggestions = isFocused && suggestions.length > 0;
 
   return (
-    <div className="relative h-full w-full">
-      <input
-        className="w-full rounded-md border border-gray-300 px-4 py-3 outline-none focus:border-gray-500"
-        onBlur={() => {
-          window.setTimeout(() => {
-            setIsFocused(false);
-          }, 100);
-        }}
-        onChange={(event) => setQuery(event.target.value)}
-        onFocus={() => setIsFocused(true)}
-        placeholder={placeholder}
-        type="search"
-        value={query}
-      />
+    <div className={`relative h-full w-full max-w-96 ${className}`}>
+      <div className="relative">
+        <input
+          className="w-full rounded-md border bg-gray-200 border-gray-400 px-4 py-3 pr-12 outline-none focus:border-gray-100"
+          onBlur={() => {
+            window.setTimeout(() => {
+              setIsFocused(false);
+            }, 100);
+          }}
+          onChange={(event) => {
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
+            onChange?.(nextQuery.trim(), getMatches(nextQuery));
+          }}
+          onFocus={() => setIsFocused(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              handleSearch(query);
+            }
+          }}
+          placeholder={placeholder}
+          type="search"
+          value={query}
+        />
+        <button
+          aria-label="Search"
+          className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-gray-600 transition-colors hover:text-gray-900"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={() => handleSearch(query)}
+          type="button"
+        >
+          <SearchIcon />
+        </button>
+      </div>
 
       {showSuggestions ? (
-        <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-200 bg-white shadow-lg">
+        <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-400 bg-gray-200 shadow-lg">
           <ul className="divide-y divide-gray-100">
             {suggestions.map((suggestion) => (
               <li key={suggestion}>
@@ -136,8 +157,8 @@ export default function Search({ onChange, values, debounceMs = 200, placeholder
                   className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50"
                   onMouseDown={() => {
                     setQuery(suggestion);
-                    setDebouncedQuery(suggestion);
-                    setIsFocused(false);
+                    onChange?.(suggestion, getMatches(suggestion));
+                    handleSearch(suggestion);
                   }}
                   type="button"
                 >

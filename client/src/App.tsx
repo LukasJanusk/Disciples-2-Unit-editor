@@ -1,76 +1,52 @@
 import { useEffect, useState } from "react";
-
-import { getUnitsData, getUnitsSearchList } from "@/api/https";
+import { getUnitsSearchList } from "@/api/https";
 import { type Unit } from "@/types";
-import Search from "./components/search/search";
-import UnitDataTable from "./components/unitDataTable";
-import UnitList from "./components/unitList";
+import Search from "@/components/search/Search";
+import Header from "@/components/layout/Header";
+import { Route, Routes } from "react-router-dom";
+import HomePage from "@/pages/Home";
+import { AppRoute } from "@/routes";
+import NavigationBar from "@/components/ui/NavigationBar";
+import UnitDataListPage from "@/pages/UnitDataList";
+import UnitsListPage from "@/pages/UnitList";
+import Title from "@/components/ui/Title";
+import UnitInfoPage from "./pages/UnitInfo";
 
 function App() {
-  const [units, setUnits] = useState<Unit[]>([]);
   const [allSearchList, setAllSearchList] = useState<Partial<Unit>[]>([]);
-  const [searchList, setSearchList] = useState<Partial<Unit>[]>([]);
-  const [error, setError] = useState("");
-  const [showData, setShowData] = useState(false);
-
-  const handleGetUnits = async () => {
-    try {
-      setShowData(true);
-      const loadedUnits = await getUnitsData();
-      setUnits(loadedUnits);
-      setError("");
-    } catch (loadError) {
-      setUnits([]);
-      setShowData(false);
-      setError(loadError instanceof Error ? loadError.message : "Failed to load units");
-    }
-  };
 
   useEffect(() => {
     const getUnitSearchList = async () => {
       try {
         const loadedSearchList = await getUnitsSearchList();
         setAllSearchList(loadedSearchList);
-        setSearchList(loadedSearchList);
-        setError("");
-      } catch (loadError) {
+      } catch {
         setAllSearchList([]);
-        setSearchList([]);
-        setError(loadError instanceof Error ? loadError.message : "Failed to load units search list");
       }
     };
 
     void getUnitSearchList();
   }, []);
 
-  const handleSearchChange = (query: string, matches: string[]) => {
-    const normalizedQuery = query.trim().toLowerCase();
-    setShowData(false);
-
-    if (!normalizedQuery) {
-      setSearchList(allSearchList);
-      return;
-    }
-
-    const matchedNames = new Set(matches.map((match) => match.toLowerCase()));
-    setSearchList(
-      allSearchList.filter((unit) => {
-        const unitName = String(unit.name ?? "");
-        const normalizedName = unitName.toLowerCase();
-        return matchedNames.has(normalizedName) && normalizedName.includes(normalizedQuery);
-      }),
-    );
-  };
-
   return (
-    <>
-      <div className="h-full w-full">
-        <Search values={allSearchList.map((unit) => String(unit.name ?? ""))} onChange={handleSearchChange} />
-        <button onClick={handleGetUnits}>Get units</button>
-        {error ? <div>{error}</div> : null}
-        {showData ? <UnitDataTable units={units} /> : <UnitList units={searchList} />}
+    <div className="h-screen w-full flex flex-col border overflow-hidden">
+      <Header>
+        <div className="flex items-center justify-between px-4 py-8 ">
+          <Title text="Disciples 2 Unit Editor" />
+          <Search className="justify-self-center" values={allSearchList.map((unit) => String(unit.name ?? ""))} />
+          <NavigationBar />
+          <div />
+        </div>
+      </Header>
+      <div className="flex-1 min-h-0">
+        <Routes>
+          <Route path={AppRoute.Home} element={<HomePage />} />
+          <Route path={AppRoute.Units} element={<UnitsListPage />} />
+          <Route path={AppRoute.UnitDetail} element={<UnitInfoPage />} />
+          <Route path={AppRoute.UnitData} element={<UnitDataListPage />} />
+        </Routes>
       </div>
-    </>
+    </div>
   );
 }
 

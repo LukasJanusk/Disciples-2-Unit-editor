@@ -1,5 +1,6 @@
 import { race } from "@/alias/race";
 import type { Unit } from "@/types";
+import { Link } from "react-router";
 
 type Props = {
   units: Partial<Unit>[];
@@ -34,18 +35,20 @@ export default function UnitList({ units, onUnitSelect }: Props) {
   }
 
   return (
-    <div className="h-full w-full overflow-hidden rounded-md border border-gray-200 bg-white">
-      <ul className="divide-y divide-gray-200">
+    <div className="h-full w-full overflow-auto bg-white border border-gray-100 rounded-md p-2">
+      <ul className="flex flex-col items-center space-y-2">
         {units.map((unit, index) => {
           const itemKey = `${String(unit.unit_id ?? unit.name ?? "unit")}-${index}`;
 
           return (
-            <li className="px-4 py-4" key={itemKey} onClick={() => onUnitSelect?.()}>
-              <div className="min-w-0">
-                <p className="truncate text-base font-semibold text-gray-900">{formatValue(unit.name ?? unit.unit_id)}</p>
-                <p className="text-sm text-gray-500">{formatValue(unit.unit_id)}</p>
-                <p className="text-sm text-gray-500">{formatRace(unit.race_id)}</p>
-              </div>
+            <li className="w-full  bg-gray-100 px-4 hover:bg-gray-50 rounded-md" key={itemKey} onClick={() => onUnitSelect?.()}>
+              <Link to={`/units/${unit.unit_id}`} className="flex ">
+                <div className="min-w-0 p-2">
+                  <p className="truncate text-base font-semibold text-gray-900">{formatValue(unit.name ?? unit.unit_id)}</p>
+                  <p className="text-sm text-gray-500">{formatValue(unit.unit_id)}</p>
+                  <p className="text-sm text-gray-500">{formatRace(unit.race_id)}</p>
+                </div>
+              </Link>
             </li>
           );
         })}
