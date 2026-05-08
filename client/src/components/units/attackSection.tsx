@@ -1,5 +1,6 @@
 import { getGlobal } from "@/api/https";
 import type { AttackData } from "@/schema/attackSchema";
+import attackClass from "@/types/attackClass";
 import { attackReach } from "@/types/attackReach";
 import { attackSource } from "@/types/attackSource";
 import { useEffect, useState } from "react";
@@ -56,6 +57,9 @@ function AttackSectionForm({ attackData }: Props) {
   return (
     <div className="p-2">
       <form className="flex flex-col gap-2">
+        <p>
+          Attack id: <span className="bg-gray-100 rounded-md p-2">{localAttackData?.ATT_ID}</span>
+        </p>
         <label htmlFor="attack-name">Name</label>
         <input className="bg-gray-100 rounded-md p-2" id="attack-name" value={localName} onChange={(e) => setLocalName(e.target.value)} />
         <label htmlFor="attack-description">Description</label>
@@ -66,7 +70,7 @@ function AttackSectionForm({ attackData }: Props) {
           onChange={(e) => setLocalDescription(e.target.value)}
         />
         {localAttackData?.SOURCE != null && (
-          <section>
+          <section className="flex flex-col gap-2">
             <label htmlFor="attack-source">Source</label>
             <select
               id="attack-source"
@@ -161,6 +165,25 @@ function AttackSectionForm({ attackData }: Props) {
             </option>
           ))}
         </select>
+        <label htmlFor="attack-class">Class</label>
+        <select
+          id="attack-class"
+          className="bg-gray-100 rounded-md p-2"
+          value={localAttackData?.CLASS ?? ""}
+          onChange={(e) => {
+            if (!localAttackData) {
+              return;
+            }
+            setLocalAttackData({ ...localAttackData, CLASS: Number(e.target.value) });
+          }}
+        >
+          <option value="">Select class</option>
+          {Object.entries(attackClass).map(([key, value]) => (
+            <option key={key} value={key}>
+              {value}
+            </option>
+          ))}
+        </select>
         <div className="flex gap-2 justify-between">
           <label htmlFor="attack-infinite">Infinite</label>
           <input
@@ -203,7 +226,7 @@ export default function AttackSection({ attackData, title }: Props) {
   }
 
   return (
-    <div>
+    <div className="rounded-md bg-gray-200 p-2">
       <h2 className="text-xl font-bold mb-2">{title}</h2>
       <AttackSectionForm key={attackData.ATT_ID} attackData={attackData} title={title} />
     </div>

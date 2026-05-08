@@ -1,10 +1,12 @@
 import { getAttack, getUnit } from "@/api/https";
 import Content from "@/components/layout/Content";
 import AttackSection from "@/components/units/attackSection";
+import UnitSection from "@/components/units/unitStatSection";
 import type { AttackData } from "@/schema/attackSchema";
 import type { Unit } from "@/schema/unitSchema";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import UnitPortrait from "../components/units/unitPortrait";
 
 export default function UnitInfoPage() {
   const { id } = useParams<{ id: string }>();
@@ -63,10 +65,10 @@ export default function UnitInfoPage() {
   }
   return (
     <Content>
-      <div>
-        <h1 className="text-2xl font-bold">Unit Info</h1>
-        <p>{unitId}</p>
-        <div className="flex">
+      <div className="overflow-x-auto p-8">
+        <div className="flex w-max min-w-full items-start gap-4">
+          <UnitPortrait unitId={unitId} />
+          {unit && <UnitSection unit={unit} title="Unit stats" />}
           {attack1Data && <AttackSection attackData={attack1Data} title="Attack 1" />}
           {attack2Data && <AttackSection attackData={attack2Data} title="Attack 2" />}
         </div>
