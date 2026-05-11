@@ -6,6 +6,12 @@ import dbf
 
 from server.classes.unit import Unit
 
+
+class MissingDataFileError(FileNotFoundError):
+    def __init__(self, path: str | Path):
+        self.path = Path(path)
+        super().__init__(f"Required data file not found: {self.path}")
+
 @contextmanager
 def open_dbf_table(
     dbf_filename: str | Path,
@@ -13,6 +19,10 @@ def open_dbf_table(
     codepage: str = DEFAULT_CODEPAGE,
     mode: Any = dbf.READ_ONLY,
 ) -> Generator[dbf.Table, None, None]:
+    dbf_path = Path(dbf_filename)
+    if not dbf_path.exists():
+        raise MissingDataFileError(dbf_path)
+
     table = dbf.Table(str(dbf_filename), codepage=codepage, on_disk=True)
     table.open(mode=mode)
     try:

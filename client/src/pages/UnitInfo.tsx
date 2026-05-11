@@ -13,6 +13,7 @@ export default function UnitInfoPage() {
   const unitId = id ?? "Unknown";
   const [unit, setUnit] = useState<Unit | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [attack1Data, setAttack1Data] = useState<AttackData | null>(null);
   const [attack2Data, setAttack2Data] = useState<AttackData | null>(null);
 
@@ -22,8 +23,11 @@ export default function UnitInfoPage() {
       try {
         const loadedUnitData = await getUnit(unitId);
         setUnit(loadedUnitData);
+        setError("");
       } catch (error) {
         console.error("Failed to load unit data:", error);
+        setUnit(null);
+        setError(error instanceof Error ? error.message : "Failed to load unit data");
       } finally {
         setLoading(false);
       }
@@ -48,6 +52,7 @@ export default function UnitInfoPage() {
         }
       } catch (error) {
         console.error("Failed to load attack data:", error);
+        setError(error instanceof Error ? error.message : "Failed to load attack data");
       }
     };
 
@@ -63,6 +68,18 @@ export default function UnitInfoPage() {
       </Content>
     );
   }
+
+  if (error) {
+    return (
+      <Content>
+        <div className="text-red-500 text-center mt-4 flex flex-col px-8">
+          <h1 className="text-2xl font-bold">Unable to load unit data</h1>
+          <p className="mt-2">{error}</p>
+        </div>
+      </Content>
+    );
+  }
+
   return (
     <Content>
       <div className="overflow-x-auto p-8">

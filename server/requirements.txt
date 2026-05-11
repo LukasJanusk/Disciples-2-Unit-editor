@@ -1,4 +1,5 @@
 aenum==3.1.17
 dbf==0.99.11
 fastapi==0.116.1
+python-multipart==0.0.20
 uvicorn==0.35.0
