@@ -1,12 +1,12 @@
 import { getAttack, getUnit } from "@/api/https";
 import Content from "@/components/layout/Content";
-import AttackSection from "@/components/units/attackSection";
-import UnitSection from "@/components/units/unitStatSection";
+import AttackSection from "@/components/units/AttackSection";
+import UnitSection from "@/components/units/UnitSection";
 import type { AttackData } from "@/schema/attackSchema";
 import type { Unit } from "@/schema/unitSchema";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import UnitPortrait from "../components/units/unitPortrait";
+import UnitPortrait from "../components/units/UnitPortrait";
 
 export default function UnitInfoPage() {
   const { id } = useParams<{ id: string }>();

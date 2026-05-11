@@ -1,6 +1,6 @@
 import { UnitSchema, UnitSearchListSchema, UnitsSchema } from "@/schema/unitSchema";
 import type { Unit, UnitSearchListItem } from "@/schema/unitSchema";
-import type { AttackResponse } from "@/schema/attackSchema";
+import type { AttackData, AttackResponse } from "@/schema/attackSchema";
 
 export async function getUnitsData(): Promise<Unit[]> {
   const response = await fetch("/api/units/data");
@@ -32,6 +32,22 @@ export async function getUnit(unitId: string): Promise<Unit> {
   return UnitSchema.parse(await response.json()) as Unit;
 }
 
+export async function updateUnit(unitId: string, updatedData: Partial<Unit>): Promise<Unit> {
+  const data = { changes: updatedData };
+  const response = await fetch(`/api/units/${unitId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update unit data: ${response.status}`);
+  }
+  return UnitSchema.parse(await response.json()) as Unit;
+}
+
 export async function getAttack(attackId: string): Promise<AttackResponse> {
   const response = await fetch(`/api/attacks/${attackId}`);
 
@@ -42,6 +58,22 @@ export async function getAttack(attackId: string): Promise<AttackResponse> {
   return (await response.json()) as AttackResponse;
 }
 
+export async function updateAttack(attackId: string, updatedData: Partial<AttackData>): Promise<AttackResponse> {
+  const data = { changes: updatedData };
+  const response = await fetch(`/api/attacks/${attackId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update attack data: ${response.status}`);
+  }
+  return (await response.json()) as AttackResponse;
+}
+
 export async function getGlobal(globalId: string): Promise<string> {
   const response = await fetch(`/api/globals/${globalId}`);
 
@@ -49,5 +81,20 @@ export async function getGlobal(globalId: string): Promise<string> {
     throw new Error(`Failed to load global data: ${response.status}`);
   }
 
+  return (await response.json()) as string;
+}
+
+export async function updateGlobal(globalId: string, newValue: string): Promise<string> {
+  const response = await fetch(`/api/globals/${globalId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ new_value: newValue }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update global data: ${response.status}`);
+  }
   return (await response.json()) as string;
 }

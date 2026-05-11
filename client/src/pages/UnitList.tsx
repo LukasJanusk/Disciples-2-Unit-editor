@@ -1,6 +1,6 @@
 import { getUnitsSearchList } from "@/api/https";
 import Content from "@/components/layout/Content";
-import UnitList from "@/components/units/unitList";
+import UnitList from "@/components/units/UnitList";
 import { AppRouteSearchParam } from "@/routes";
 import type { UnitSearchListItem } from "@/schema/unitSchema";
 import { useEffect, useMemo, useState } from "react";

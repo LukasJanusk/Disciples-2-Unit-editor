@@ -1,8 +1,9 @@
 import { race } from "@/alias/race";
-import { getGlobal } from "@/api/https";
+import { getGlobal, updateGlobal, updateUnit } from "@/api/https";
 import type { Unit } from "@/schema/unitSchema";
 import { subrace } from "@/types/subrace";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   unit: Unit;
@@ -46,16 +47,28 @@ function UnitSectionForm({ unit }: Props) {
     void getName();
   }, [nameTextId]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission logic, e.g., send updated unit data to the server
-    console.log("Updated unit data:", localUnitData);
+    try {
+      if (nameTextId) {
+        await updateGlobal(nameTextId, localName);
+      }
+      if (descriptionTextId) {
+        await updateGlobal(descriptionTextId, localDescription);
+      }
+      if (localUnitData) {
+        await updateUnit(localUnitData.UNIT_ID, localUnitData);
+        toast.success("Unit data updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating unit data:", error);
+      toast.error("Failed to update unit data");
+    }
   };
 
   return (
     <div className="p-2 max-w-96">
-      <form className="flex flex-col gap-2">
+      <form className="flex flex-col gap-2" onSubmit={handleFormSubmit}>
         <p className="py-2">
           Unit id: <span className="bg-gray-100 rounded-md p-2">{unit.UNIT_ID}</span>
         </p>
@@ -146,6 +159,9 @@ function UnitSectionForm({ unit }: Props) {
             }}
           />
         </div>
+        <button type="submit" className="bg-blue-500 text-white rounded-md p-2 mt-4">
+          Save unit data
+        </button>
       </form>
     </div>
   );

@@ -1,6 +1,6 @@
 import { getUnitsData } from "@/api/https";
 import Content from "@/components/layout/Content";
-import UnitDataTable from "@/components/units/unitDataTable";
+import UnitDataTable from "@/components/units/UnitDataTable";
 import type { Unit } from "@/schema/unitSchema";
 import { useState, useEffect } from "react";
 

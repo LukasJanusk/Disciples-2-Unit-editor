@@ -11,6 +11,7 @@ import UnitDataListPage from "@/pages/UnitDataList";
 import UnitsListPage from "@/pages/UnitList";
 import Title from "@/components/ui/Title";
 import UnitInfoPage from "./pages/UnitInfo";
+import { Toaster } from "sonner";
 
 function App() {
   const [allSearchList, setAllSearchList] = useState<UnitSearchListItem[]>([]);
@@ -30,6 +31,7 @@ function App() {
 
   return (
     <div className="h-screen w-full flex flex-col border overflow-hidden">
+      <Toaster />
       <Header>
         <div className="flex items-center justify-between px-4 py-8 ">
           <Title text="Disciples 2 Unit Editor" />

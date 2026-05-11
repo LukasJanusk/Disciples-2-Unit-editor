@@ -1,16 +1,10 @@
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Generator
-
+from .defaults import DEFAULT_CODEPAGE, DEFAULT_GLOBALS_DBF, DEFAULT_UNITS_DBF, DEFAULT_ATTACKS_DBF, DEFAULT_ATTACK_ID
 import dbf
 
-from server.unit import Unit
-
-DEFAULT_CODEPAGE = "utf8"
-DEFAULT_UNITS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Gunits.dbf"
-DEFAULT_GLOBALS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Tglobal.dbf"
-DEFAULT_ATTACKS_DBF = Path(__file__).resolve().parent.parent / "defaults/Globals/Gattacks.dbf"
-DEFAULT_ATTACK_ID = 'g000000000'
+from server.classes.unit import Unit
 
 @contextmanager
 def open_dbf_table(
@@ -68,6 +62,20 @@ def get_global(global_id: str) -> str | None:
             if _strip_dbf_string(record["TXT_ID"]) == global_id:
                 return _strip_dbf_string(record["TEXT"])
     return None
+
+def update_global(
+    global_id: str,
+    new_value: str,
+    dbf_filename: str | Path = DEFAULT_GLOBALS_DBF,
+    *,
+    codepage: str = DEFAULT_CODEPAGE,
+) -> None:
+    with open_dbf_table(dbf_filename, codepage=codepage, mode=dbf.READ_WRITE) as table:
+        for record in table:
+            if _strip_dbf_string(record["TXT_ID"]) == global_id:
+                dbf.write(record, TEXT=new_value)
+                return
+    raise LookupError(f"Global not found: {global_id}")
 
 def load_units(
     dbf_filename: str | Path = DEFAULT_UNITS_DBF,
@@ -127,6 +135,32 @@ def get_attack(
                 return _row_from_record(record, field_names)
     return None
 
+def update_attack(
+    attack_id: str,
+    changes: dict[str, Any],
+    dbf_filename: str | Path = DEFAULT_ATTACKS_DBF,
+    *,
+    codepage: str = DEFAULT_CODEPAGE,
+) -> dict[str, Any]:
+    with open_dbf_table(dbf_filename, codepage=codepage, mode=dbf.READ_WRITE) as table:
+        field_names = tuple(table.field_names)
+        normalized_changes: dict[str, Any] = {}
+
+        for field_name, value in changes.items():
+            resolved_name = _resolve_dbf_field_name(field_name, field_names)
+            if resolved_name is None:
+                raise ValueError(f"Unknown attack field: {field_name}")
+            normalized_changes[resolved_name] = value
+
+        for record in table:
+            if str(record["ATT_ID"]).strip() != attack_id:
+                continue
+
+            dbf.write(record, **normalized_changes)
+            updated_row = _row_from_record(record, field_names)
+            return updated_row
+
+    raise LookupError(f"Attack not found: {attack_id}")
 
 def is_default_attack_id(attack_id: str) -> bool:
     return attack_id == DEFAULT_ATTACK_ID

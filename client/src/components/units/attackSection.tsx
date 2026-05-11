@@ -1,9 +1,10 @@
-import { getGlobal } from "@/api/https";
+import { getGlobal, updateAttack, updateGlobal } from "@/api/https";
 import type { AttackData } from "@/schema/attackSchema";
 import attackClass from "@/types/attackClass";
 import { attackReach } from "@/types/attackReach";
 import { attackSource } from "@/types/attackSource";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type Props = {
   attackData: AttackData | null;
@@ -54,9 +55,28 @@ function AttackSectionForm({ attackData }: Props) {
     setLocalAttackData({ ...localAttackData, SOURCE: newSource });
   };
 
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (descriptionTextId) {
+        await updateGlobal(descriptionTextId, localDescription);
+      }
+      if (nameTextId) {
+        await updateGlobal(nameTextId, localName);
+      }
+      if (localAttackData) {
+        await updateAttack(localAttackData.ATT_ID, localAttackData);
+        toast.success("Attack data updated successfully");
+      }
+    } catch (error) {
+      console.error("Error updating attack data:", error);
+      toast.error("Failed to update attack data");
+    }
+  };
+
   return (
     <div className="p-2">
-      <form className="flex flex-col gap-2">
+      <form className="flex flex-col gap-2" onSubmit={handleFormSubmit}>
         <p>
           Attack id: <span className="bg-gray-100 rounded-md p-2">{localAttackData?.ATT_ID}</span>
         </p>
@@ -215,6 +235,9 @@ function AttackSectionForm({ attackData }: Props) {
           />
         </div>
         {localAttackData?.ALT_ATTACK && <section></section>}
+        <button type="submit" className="bg-blue-500 text-white rounded-md p-2 mt-4">
+          Save attack data
+        </button>
       </form>
     </div>
   );
