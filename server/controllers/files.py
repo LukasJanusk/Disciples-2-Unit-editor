@@ -4,8 +4,7 @@ from pathlib import Path
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-GLOBALS_STORAGE_DIR = PROJECT_ROOT / "storage/Globals"
+from server.repository.defaults import GLOBALS_STORAGE_DIR
 
 class FileExistResponse(BaseModel):
     Tglobal: bool

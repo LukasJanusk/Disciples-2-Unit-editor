@@ -1,7 +1,7 @@
 import Content from "@/components/layout/Content";
 import { useEffect, useState } from "react";
 import { checkFilesExist } from "@/api/https";
-import FileUploadSection from "@/components/fileUploadSection";
+import FileUploadSection from "@/components/FileUploadSection";
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true);

@@ -12,6 +12,7 @@ node_modules/
 # Distribution / packaging
 .Python
 build/
+dist-desktop/
 develop-eggs/
 dist/
 downloads/
@@ -28,6 +29,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.pyinstaller/
 
 # PyInstaller
 #   Usually these files are written by a python script from a template

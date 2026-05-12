@@ -35,6 +35,17 @@ Run the backend:
 python -m server.main
 ```
 
+Storage location depends on `APP_ENV`:
+
+```text
+APP_ENV=dev   -> ./storage/Globals
+APP_ENV=prod  -> %LOCALAPPDATA%/Disciples2UnitEditor/Globals on Windows
+```
+
+Development defaults to `APP_ENV=dev`. Packaged desktop builds should set `APP_ENV=prod` before starting the backend.
+
+The backend port can also be overridden with `APP_PORT`. If it is not set, the backend uses `8000`.
+
 The backend runs on `http://127.0.0.1:8000`.
 
 Allowed frontend origins:
@@ -97,6 +108,53 @@ npm run client:build
 npm run client:test
 npm run client:lint
 npm run server:dev
+npm run desktop:dev
+npm run backend:build
+npm run desktop:build
+```
+
+## Desktop packaging
+
+Install root desktop dependencies:
+
+```bash
+npm install
+```
+
+Install backend dependencies, including PyInstaller:
+
+```bash
+source .venv/bin/activate
+python -m pip install -r server/requirements.txt
+```
+
+For desktop development, run the Vite client first and then start Electron from the repo root:
+
+```bash
+npm run client:dev
+npm run desktop:dev
+```
+
+To build the packaged backend bundle only:
+
+```bash
+npm run backend:build
+```
+
+To build the Windows installer:
+
+```bash
+npm run desktop:build
+```
+
+Notes:
+
+```text
+- The Electron launcher starts the backend automatically.
+- Packaged runs use APP_ENV=prod automatically.
+- The backend bundle is written to ./dist/backend.
+- The desktop installer output is written to ./dist-desktop.
+- For a real Windows NSIS installer, run the desktop build on Windows.
 ```
 
 When you are done, leave the virtual environment with:

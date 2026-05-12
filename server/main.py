@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from server.controllers import attacks, files, globals, units
 import uvicorn
@@ -7,13 +8,20 @@ from fastapi.responses import JSONResponse
 
 from server.repository.editor import MissingDataFileError
 
+
+def _get_allowed_origins() -> list[str]:
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+    if os.getenv("APP_ENV", "dev").lower() == "prod":
+        origins.append("null")
+    return origins
+
 app = FastAPI(title="Disciples 2 Unit Editor API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
+    allow_origins=_get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -117,7 +125,8 @@ async def delete_file(file_name: str):
         return JSONResponse(status_code=404, content={"detail": f"{file_name} not found"})
 
 def main():
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(os.getenv("APP_PORT", "8000"))
+    uvicorn.run(app, host="127.0.0.1", port=port)
 
 if __name__ == "__main__":
     main()

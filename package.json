@@ -1,11 +1,57 @@
 {
   "name": "disciples-2-unit-editor",
+  "version": "0.1.0",
   "private": true,
+  "main": "electron/main.cjs",
   "scripts": {
     "client:dev": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build",
     "client:test": "npm --prefix client run test",
     "client:lint": "npm --prefix client run lint",
-    "server:dev": ".venv/bin/python -m server.main"
+    "server:dev": ".venv/bin/python -m server.main",
+    "backend:build": "node scripts/build-backend.mjs",
+    "desktop:dev": "cross-env ELECTRON_RENDERER_URL=http://localhost:5173 electron .",
+    "desktop:build": "npm run client:build && npm run backend:build && electron-builder --win nsis"
+  },
+  "build": {
+    "appId": "com.lukasjanuskevicius.disciples2uniteditor",
+    "productName": "Disciples 2 Unit Editor",
+    "icon": "electron/assets/iconset/icon_512x512.png",
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "files": [
+      "electron/**/*",
+      "client/dist/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "dist/backend/",
+        "to": "backend"
+      }
+    ],
+    "win": {
+      "icon": "electron/assets/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
   }
 }

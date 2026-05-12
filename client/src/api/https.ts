@@ -9,6 +9,21 @@ type ApiErrorPayload = {
   hint?: string;
 };
 
+function getApiBaseUrl(): string {
+  const configuredBaseUrl = window.desktopConfig?.apiBaseUrl;
+  if (typeof configuredBaseUrl === "string" && configuredBaseUrl.length > 0) {
+    return configuredBaseUrl.replace(/\/$/, "");
+  }
+
+  if (window.location.protocol === "file:") {
+    return "http://127.0.0.1:8000";
+  }
+
+  return "/api";
+}
+
+const API_BASE_URL = getApiBaseUrl();
+
 async function createApiError(response: Response, fallbackMessage: string): Promise<Error> {
   let message = `${fallbackMessage}: ${response.status}`;
 
@@ -28,7 +43,7 @@ async function createApiError(response: Response, fallbackMessage: string): Prom
 }
 
 export async function getUnitsData(): Promise<Unit[]> {
-  const response = await fetch("/api/units/data");
+  const response = await fetch(`${API_BASE_URL}/units/data`);
 
   if (!response.ok) {
     throw await createApiError(response, "Failed to load units");
@@ -38,7 +53,7 @@ export async function getUnitsData(): Promise<Unit[]> {
 }
 
 export async function getUnitsSearchList(): Promise<UnitSearchListItem[]> {
-  const response = await fetch("/api/units");
+  const response = await fetch(`${API_BASE_URL}/units`);
 
   if (!response.ok) {
     throw await createApiError(response, "Failed to load units search list");
@@ -48,7 +63,7 @@ export async function getUnitsSearchList(): Promise<UnitSearchListItem[]> {
 }
 
 export async function getUnit(unitId: string): Promise<Unit> {
-  const response = await fetch(`/api/units/${unitId}`);
+  const response = await fetch(`${API_BASE_URL}/units/${unitId}`);
 
   if (!response.ok) {
     throw await createApiError(response, "Failed to load unit data");
@@ -59,7 +74,7 @@ export async function getUnit(unitId: string): Promise<Unit> {
 
 export async function updateUnit(unitId: string, updatedData: Partial<Unit>): Promise<Unit> {
   const data = { changes: updatedData };
-  const response = await fetch(`/api/units/${unitId}`, {
+  const response = await fetch(`${API_BASE_URL}/units/${unitId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -74,7 +89,7 @@ export async function updateUnit(unitId: string, updatedData: Partial<Unit>): Pr
 }
 
 export async function getAttack(attackId: string): Promise<AttackResponse> {
-  const response = await fetch(`/api/attacks/${attackId}`);
+  const response = await fetch(`${API_BASE_URL}/attacks/${attackId}`);
 
   if (!response.ok) {
     throw await createApiError(response, "Failed to load attack data");
@@ -85,7 +100,7 @@ export async function getAttack(attackId: string): Promise<AttackResponse> {
 
 export async function updateAttack(attackId: string, updatedData: Partial<AttackData>): Promise<AttackResponse> {
   const data = { changes: updatedData };
-  const response = await fetch(`/api/attacks/${attackId}`, {
+  const response = await fetch(`${API_BASE_URL}/attacks/${attackId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -100,7 +115,7 @@ export async function updateAttack(attackId: string, updatedData: Partial<Attack
 }
 
 export async function getGlobal(globalId: string): Promise<string> {
-  const response = await fetch(`/api/globals/${globalId}`);
+  const response = await fetch(`${API_BASE_URL}/globals/${globalId}`);
 
   if (!response.ok) {
     throw await createApiError(response, "Failed to load global data");
@@ -110,7 +125,7 @@ export async function getGlobal(globalId: string): Promise<string> {
 }
 
 export async function updateGlobal(globalId: string, newValue: string): Promise<string> {
-  const response = await fetch(`/api/globals/${globalId}`, {
+  const response = await fetch(`${API_BASE_URL}/globals/${globalId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -128,7 +143,7 @@ export async function uploadDbf(file: File, type: DBFFileName): Promise<DBFUploa
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`/api/files/${type}`, {
+  const response = await fetch(`${API_BASE_URL}/files/${type}`, {
     method: "POST",
     body: formData,
   });
@@ -142,7 +157,7 @@ export async function uploadDbf(file: File, type: DBFFileName): Promise<DBFUploa
 
 export function downloadDbf(type: DBFFileName): void {
   const link = document.createElement("a");
-  link.href = `/api/files/${type}/download`;
+  link.href = `${API_BASE_URL}/files/${type}/download`;
   link.download = `${type}.dbf`;
   document.body.appendChild(link);
   link.click();
@@ -150,7 +165,7 @@ export function downloadDbf(type: DBFFileName): void {
 }
 
 export async function checkFilesExist(): Promise<FileExistResponse> {
-  const response = await fetch("/api/files/exist");
+  const response = await fetch(`${API_BASE_URL}/files/exist`);
 
   if (!response.ok) {
     throw await createApiError(response, "Failed to check files existence");
@@ -160,7 +175,7 @@ export async function checkFilesExist(): Promise<FileExistResponse> {
 }
 
 export async function deleteFile(type: DBFFileName): Promise<void> {
-  const response = await fetch(`/api/files/${type}`, {
+  const response = await fetch(`${API_BASE_URL}/files/${type}`, {
     method: "DELETE",
   });
 
