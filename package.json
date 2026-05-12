@@ -11,7 +11,7 @@
     "server:dev": ".venv/bin/python -m server.main",
     "backend:build": "node scripts/build-backend.mjs",
     "desktop:dev": "cross-env ELECTRON_RENDERER_URL=http://localhost:5173 electron .",
-    "desktop:build": "npm run client:build && npm run backend:build && electron-builder --win nsis"
+    "desktop:build": "npm run client:build && npm run backend:build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis"
   },
   "build": {
     "appId": "com.lukasjanuskevicius.disciples2uniteditor",
@@ -33,6 +33,7 @@
     ],
     "win": {
       "icon": "electron/assets/icon.ico",
+      "signAndEditExecutable": false,
       "target": [
         {
           "target": "nsis",
@@ -45,6 +46,9 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
+      "installerIcon": "electron/assets/icon.ico",
+      "uninstallerIcon": "electron/assets/icon.ico",
+      "installerHeaderIcon": "electron/assets/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }

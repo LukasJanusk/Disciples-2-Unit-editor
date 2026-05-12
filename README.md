@@ -14,12 +14,23 @@ assets/   project assets
 Create the virtual environment:
 
 ```bash
+# Windows (cmd / PowerShell)
+py -m venv .venv
+
+# macOS / Linux
 python3 -m venv .venv
 ```
 
 Activate it:
 
 ```bash
+# Windows Command Prompt (cmd)
+.venv\Scripts\activate.bat
+
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+# macOS / Linux / Git Bash
 source .venv/bin/activate
 ```
 
@@ -33,6 +44,16 @@ Run the backend:
 
 ```bash
 python -m server.main
+```
+
+If you prefer running without activation, use the interpreter path directly:
+
+```bash
+# Windows
+.venv\Scripts\python -m server.main
+
+# macOS / Linux
+.venv/bin/python -m server.main
 ```
 
 Storage location depends on `APP_ENV`:
@@ -113,6 +134,16 @@ npm run backend:build
 npm run desktop:build
 ```
 
+`npm run server:dev` currently uses a Unix-style path. On Windows terminals, run one of these instead:
+
+```bash
+# after activating the venv (all OS)
+python -m server.main
+
+# without activation on Windows
+.venv\Scripts\python -m server.main
+```
+
 ## Desktop packaging
 
 Install root desktop dependencies:
@@ -124,7 +155,15 @@ npm install
 Install backend dependencies, including PyInstaller:
 
 ```bash
+# Windows Command Prompt (cmd)
+.venv\Scripts\activate.bat
+
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+
+# macOS / Linux / Git Bash
 source .venv/bin/activate
+
 python -m pip install -r server/requirements.txt
 ```
 

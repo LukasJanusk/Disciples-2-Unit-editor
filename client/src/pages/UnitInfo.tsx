@@ -1,19 +1,19 @@
-import { getAttack, getUnit } from "@/api/https";
-import Content from "@/components/layout/Content";
-import AttackSection from "@/components/units/attackSection";
-import UnitSection from "@/components/units/UnitSection";
-import type { AttackData } from "@/schema/attackSchema";
-import type { Unit } from "@/schema/unitSchema";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import UnitPortrait from "../components/units/unitPortrait";
+import { getAttack, getUnit } from '@/api/https';
+import Content from '@/components/layout/Content';
+import AttackSection from '@/components/units/AttackSection';
+import UnitSection from '@/components/units/UnitSection';
+import type { AttackData } from '@/schema/attackSchema';
+import type { Unit } from '@/schema/unitSchema';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import UnitPortrait from '../components/units/UnitPortrait';
 
 export default function UnitInfoPage() {
   const { id } = useParams<{ id: string }>();
-  const unitId = id ?? "Unknown";
+  const unitId = id ?? 'Unknown';
   const [unit, setUnit] = useState<Unit | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [attack1Data, setAttack1Data] = useState<AttackData | null>(null);
   const [attack2Data, setAttack2Data] = useState<AttackData | null>(null);
 
@@ -23,11 +23,13 @@ export default function UnitInfoPage() {
       try {
         const loadedUnitData = await getUnit(unitId);
         setUnit(loadedUnitData);
-        setError("");
+        setError('');
       } catch (error) {
-        console.error("Failed to load unit data:", error);
+        console.error('Failed to load unit data:', error);
         setUnit(null);
-        setError(error instanceof Error ? error.message : "Failed to load unit data");
+        setError(
+          error instanceof Error ? error.message : 'Failed to load unit data',
+        );
       } finally {
         setLoading(false);
       }
@@ -42,8 +44,8 @@ export default function UnitInfoPage() {
     }
     const getAttackDataForUnit = async () => {
       try {
-        const attack1ResponseData = await getAttack(unit.ATTACK_ID ?? "");
-        const attack2ResponseData = await getAttack(unit.ATTACK2_ID ?? "");
+        const attack1ResponseData = await getAttack(unit.ATTACK_ID ?? '');
+        const attack2ResponseData = await getAttack(unit.ATTACK2_ID ?? '');
         if (!attack1ResponseData.is_default) {
           setAttack1Data(attack1ResponseData.attack ?? null);
         }
@@ -51,8 +53,10 @@ export default function UnitInfoPage() {
           setAttack2Data(attack2ResponseData.attack ?? null);
         }
       } catch (error) {
-        console.error("Failed to load attack data:", error);
-        setError(error instanceof Error ? error.message : "Failed to load attack data");
+        console.error('Failed to load attack data:', error);
+        setError(
+          error instanceof Error ? error.message : 'Failed to load attack data',
+        );
       }
     };
 
@@ -64,7 +68,9 @@ export default function UnitInfoPage() {
   if (loading) {
     return (
       <Content>
-        <div className="text-gray-500 text-center mt-4">Loading unit data...</div>
+        <div className="text-gray-500 text-center mt-4">
+          Loading unit data...
+        </div>
       </Content>
     );
   }
@@ -86,8 +92,12 @@ export default function UnitInfoPage() {
         <div className="flex w-max min-w-full items-start gap-4">
           <UnitPortrait unitId={unitId} />
           {unit && <UnitSection unit={unit} title="Unit stats" />}
-          {attack1Data && <AttackSection attackData={attack1Data} title="Attack 1" />}
-          {attack2Data && <AttackSection attackData={attack2Data} title="Attack 2" />}
+          {attack1Data && (
+            <AttackSection attackData={attack1Data} title="Attack 1" />
+          )}
+          {attack2Data && (
+            <AttackSection attackData={attack2Data} title="Attack 2" />
+          )}
         </div>
       </div>
     </Content>
