@@ -1,5 +1,9 @@
 # Disciples-2-Unit-editor
 
+## Screenshot
+
+![Disciples 2 Unit Editor screenshot](screenshots/Screenshot%202026-05-12%20144509.jpg)
+
 ## Monorepo layout
 
 ```text
@@ -76,21 +80,7 @@ http://localhost:5173
 http://127.0.0.1:5173
 ```
 
-Available endpoints:
-
-```text
-GET /units
-GET /units/{unit_id}
-POST /units/{unit_id}
-```
-
-Example edit request:
-
-```bash
-curl -X POST http://127.0.0.1:8000/units/g000uu0001 \
-  -H "Content-Type: application/json" \
-  -d '{"changes": {"LEVEL": 2, "HIT_POINT": 120}}'
-```
+Endpoint documentation is in `server/README.md`.
 
 ## Client setup
 
