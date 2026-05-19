@@ -20,7 +20,7 @@ export default function UnitDataTable({ units }: Props) {
   const columns = units.length > 0 ? (Object.keys(units[0]) as Array<keyof Unit>) : [];
 
   return (
-    <div className="flex h-full min-h-0 flex-col p-2">
+    <div className="flex h-full min-h-0 flex-col rounded-md border border-gray-100 bg-white p-2">
       {units.length > 0 ? (
         <div className="min-h-0 flex-1 overflow-auto">
           <table className="w-full border-separate border-spacing-x-2 border-spacing-y-0 text-left">

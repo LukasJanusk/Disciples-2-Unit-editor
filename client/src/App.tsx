@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUnitsSearchList } from "@/api/https";
+import { getUnitsSearchList, UNITS_SEARCH_LIST_CHANGED_EVENT } from "@/api/https";
 import { type UnitSearchListItem } from "@/schema/unitSchema";
 import Search from "@/components/search/Search";
 import Header from "@/components/layout/Header";
@@ -17,7 +17,7 @@ function App() {
   const [allSearchList, setAllSearchList] = useState<UnitSearchListItem[]>([]);
 
   useEffect(() => {
-    const getUnitSearchList = async () => {
+    const loadUnitSearchList = async () => {
       try {
         const loadedSearchList = await getUnitsSearchList();
         setAllSearchList(loadedSearchList);
@@ -26,7 +26,16 @@ function App() {
       }
     };
 
-    void getUnitSearchList();
+    const handleUnitsSearchListChanged = () => {
+      void loadUnitSearchList();
+    };
+
+    void loadUnitSearchList();
+    window.addEventListener(UNITS_SEARCH_LIST_CHANGED_EVENT, handleUnitsSearchListChanged);
+
+    return () => {
+      window.removeEventListener(UNITS_SEARCH_LIST_CHANGED_EVENT, handleUnitsSearchListChanged);
+    };
   }, []);
 
   return (

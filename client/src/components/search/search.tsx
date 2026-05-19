@@ -1,15 +1,7 @@
-import { useMemo, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { AppRoute, AppRouteSearchParam } from '@/routes';
-import SearchIcon from './SearchIcon';
-
-type Props = {
-  onChange?: (query: string, matches: string[]) => void;
-  onSearch?: (query: string, matches: string[]) => void;
-  values: string[];
-  placeholder?: string;
-  className?: string;
-};
+import { useMemo, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { AppRoute, AppRouteSearchParam } from "@/routes";
+import SearchIcon from "./SearchIcon";
 
 const MAX_SUGGESTIONS = 10;
 
@@ -37,24 +29,26 @@ function getMatchScore(value: string, normalizedQuery: string): number {
   return Number.POSITIVE_INFINITY;
 }
 
-export default function Search({
-  onChange,
-  onSearch,
-  values,
-  placeholder = 'Search',
-  className,
-}: Props) {
+type Props = {
+  onChange?: (query: string, matches: string[]) => void;
+  onSearch?: (query: string, matches: string[]) => void;
+  values: string[];
+  placeholder?: string;
+  className?: string;
+};
+
+export default function Search({ onChange, onSearch, values, placeholder = "Search", className }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const initialRouteQuery = searchParams.get(AppRouteSearchParam.Query) ?? '';
+  const initialRouteQuery = searchParams.get(AppRouteSearchParam.Query) ?? "";
   const [query, setQuery] = useState(initialRouteQuery);
   const [isFocused, setIsFocused] = useState(false);
 
   const uniqueValues = useMemo(() => {
     const seen = new Set<string>();
 
-    return values.filter(value => {
+    return values.filter((value) => {
       const normalizedValue = value.trim().toLowerCase();
 
       if (!normalizedValue || seen.has(normalizedValue)) {
@@ -74,11 +68,11 @@ export default function Search({
     }
 
     return [...uniqueValues]
-      .map(value => ({
+      .map((value) => ({
         score: getMatchScore(value, normalizedQuery),
         value,
       }))
-      .filter(entry => Number.isFinite(entry.score))
+      .filter((entry) => Number.isFinite(entry.score))
       .sort((left, right) => {
         if (left.score !== right.score) {
           return left.score - right.score;
@@ -87,7 +81,7 @@ export default function Search({
         return left.value.localeCompare(right.value);
       })
       .slice(0, MAX_SUGGESTIONS)
-      .map(entry => entry.value);
+      .map((entry) => entry.value);
   }, [query, uniqueValues]);
 
   const getMatches = (nextQuery: string) => {
@@ -97,22 +91,15 @@ export default function Search({
       return uniqueValues;
     }
 
-    return uniqueValues.filter(value =>
-      value.toLowerCase().includes(normalizedQuery),
-    );
+    return uniqueValues.filter((value) => value.toLowerCase().includes(normalizedQuery));
   };
 
   const handleSearch = (nextQuery: string) => {
     const trimmedQuery = nextQuery.trim();
     const matches = getMatches(nextQuery);
-    const nextSearch = trimmedQuery
-      ? `?${new URLSearchParams({ [AppRouteSearchParam.Query]: trimmedQuery }).toString()}`
-      : '';
+    const nextSearch = trimmedQuery ? `?${new URLSearchParams({ [AppRouteSearchParam.Query]: trimmedQuery }).toString()}` : "";
 
-    if (
-      location.pathname !== AppRoute.Units ||
-      location.search !== nextSearch
-    ) {
+    if (location.pathname !== AppRoute.Units || location.search !== nextSearch) {
       void navigate({ pathname: AppRoute.Units, search: nextSearch });
     }
 
@@ -132,14 +119,14 @@ export default function Search({
               setIsFocused(false);
             }, 100);
           }}
-          onChange={event => {
+          onChange={(event) => {
             const nextQuery = event.target.value;
             setQuery(nextQuery);
             onChange?.(nextQuery.trim(), getMatches(nextQuery));
           }}
           onFocus={() => setIsFocused(true)}
-          onKeyDown={event => {
-            if (event.key === 'Enter') {
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
               event.preventDefault();
               handleSearch(query);
             }
@@ -151,7 +138,7 @@ export default function Search({
         <button
           aria-label="Search"
           className="absolute inset-y-0 right-0 flex items-center justify-center px-3 text-gray-600 transition-colors hover:text-gray-900"
-          onMouseDown={event => {
+          onMouseDown={(event) => {
             event.preventDefault();
           }}
           onClick={() => handleSearch(query)}
@@ -162,9 +149,9 @@ export default function Search({
       </div>
 
       {showSuggestions ? (
-        <div className="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-gray-400 bg-gray-200 shadow-lg">
+        <div className="absolute z-40 mt-1 w-full overflow-hidden rounded-md border border-gray-400 bg-gray-200 shadow-lg">
           <ul className="divide-y divide-gray-100">
-            {suggestions.map(suggestion => (
+            {suggestions.map((suggestion) => (
               <li key={suggestion}>
                 <button
                   className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50"

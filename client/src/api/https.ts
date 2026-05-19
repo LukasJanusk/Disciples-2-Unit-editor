@@ -9,6 +9,12 @@ type ApiErrorPayload = {
   hint?: string;
 };
 
+export const UNITS_SEARCH_LIST_CHANGED_EVENT = "units-search-list-changed";
+
+export function notifyUnitsSearchListChanged(): void {
+  window.dispatchEvent(new Event(UNITS_SEARCH_LIST_CHANGED_EVENT));
+}
+
 function getApiBaseUrl(): string {
   const configuredBaseUrl = window.desktopConfig?.apiBaseUrl;
   if (typeof configuredBaseUrl === "string" && configuredBaseUrl.length > 0) {
@@ -85,7 +91,10 @@ export async function updateUnit(unitId: string, updatedData: Partial<Unit>): Pr
   if (!response.ok) {
     throw await createApiError(response, "Failed to update unit data");
   }
-  return UnitSchema.parse(await response.json()) as Unit;
+
+  const updatedUnit = UnitSchema.parse(await response.json()) as Unit;
+  notifyUnitsSearchListChanged();
+  return updatedUnit;
 }
 
 export async function getAttack(attackId: string): Promise<AttackResponse> {
@@ -152,7 +161,9 @@ export async function uploadDbf(file: File, type: DBFFileName): Promise<DBFUploa
     throw await createApiError(response, `Failed to upload ${type} DBF file`);
   }
 
-  return parseDBFUploadResponse(await response.json());
+  const uploadResponse = parseDBFUploadResponse(await response.json());
+  notifyUnitsSearchListChanged();
+  return uploadResponse;
 }
 
 export function downloadDbf(type: DBFFileName): void {
@@ -178,6 +189,12 @@ export async function deleteFile(type: DBFFileName): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/files/${type}`, {
     method: "DELETE",
   });
+
+  if (!response.ok) {
+    throw await createApiError(response, `Failed to delete ${type} DBF file`);
+  }
+
+  notifyUnitsSearchListChanged();
 
   if (!response.ok) {
     throw await createApiError(response, `Failed to delete ${type} DBF file`);
