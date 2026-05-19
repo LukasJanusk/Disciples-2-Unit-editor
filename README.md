@@ -1,5 +1,7 @@
 # Disciples-2-Unit-editor
 
+Disciples 2 Unit Editor is designed to make unit balancing easier by providing an intuitive interface for adjusting unit data. It is not intended for modding or adding new content to the game; its purpose is to make small but meaningful changes to the existing, fully functional game.
+
 ## Screenshot
 
 ![Disciples 2 Unit Editor screenshot](screenshots/Screenshot%202026-05-12%20144509.jpg)
